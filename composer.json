@@ -1,0 +1,34 @@
+{
+    "name": "eloquent/phony-leo",
+    "description": "Phony integration for Leo.",
+    "keywords": ["mock", "mocking", "stub", "stubbing", "spy", "dummy", "double", "test", "fake", "leo"],
+    "homepage": "https://github.com/eloquent/phony-leo",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Erin Millard",
+            "email": "ezzatron@gmail.com",
+            "homepage": "http://ezzatron.com/"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "eloquent/phony": "dev-master",
+        "peridot-php/leo": "^1"
+    },
+    "require-dev": {
+        "eloquent/asplode": "^2",
+        "peridot-php/peridot": "^1",
+        "peridot-php/peridot-code-coverage-reporters": "^2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Eloquent\\Phony\\Leo\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Eloquent\\Phony\\": ["test/src"]
+        }
+    }
+}
