@@ -83,4 +83,7 @@ EOD;
 
         expect($handle->a)->to->have->been->called();
     });
+
+    describe('suite with typehinted arguments', function (DateTime $a) {
+    });
 });
