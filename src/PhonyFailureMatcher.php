@@ -22,12 +22,10 @@ class PhonyFailureMatcher extends AbstractMatcher
 {
     /**
      * Construct a new Phony failure matcher.
-     *
-     * @param AssertionException $failure The failure.
      */
     public function __construct(AssertionException $failure)
     {
-        $this->failure = $failure;
+        parent::__construct($failure->getMessage());
     }
 
     /**
@@ -47,12 +45,8 @@ class PhonyFailureMatcher extends AbstractMatcher
      */
     public function getDefaultTemplate()
     {
-        $message = $this->failure->getMessage();
-
         return new ArrayTemplate(
-            ['default' => $message, 'negated' => $message]
+            ['default' => $this->expected, 'negated' => $this->expected]
         );
     }
-
-    private $failure;
 }

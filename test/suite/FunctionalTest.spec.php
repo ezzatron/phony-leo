@@ -1,6 +1,5 @@
 <?php
 
-use Eloquent\Phony as x;
 use Eloquent\Phony\Leo\PhonyLeo;
 use Peridot\Leo\Leo;
 
@@ -10,7 +9,7 @@ describe('Functional tests', function () {
     });
 
     it('Returns a verification result on success', function () {
-        $spy = x\spy();
+        $spy = $this->spy();
         $spy();
 
         $result = expect($spy)->to->have->been->called();
@@ -19,7 +18,7 @@ describe('Functional tests', function () {
 
     it('Throws exceptions on failure', function () {
         $actual = function () {
-            expect(x\spy())->to->have->been->called();
+            expect($this->spy())->to->have->been->called();
         };
 
         expect($actual)->to->throw(
@@ -29,12 +28,12 @@ describe('Functional tests', function () {
     });
 
     it('Supports negation', function () {
-        expect(x\spy())->not->to->have->been->called();
+        expect($this->spy())->not->to->have->been->called();
     });
 
     it('Supports negation failures', function () {
         $actual = function () {
-            $spy = x\spy();
+            $spy = $this->spy();
             $spy();
 
             expect($spy)->not->to->have->been->called();
@@ -55,25 +54,43 @@ describe('Functional tests', function () {
     });
 
     it('Supports methods with arguments', function () {
-        $spy = x\spy();
+        $spy = $this->spy();
         $spy('a');
 
         expect($spy)->to->have->been->calledWith('a');
 
         $actual = function () {
-            $spy = x\spy();
+            $spy = $this->spy()->setLabel('label');
             $spy('a');
 
             expect($spy)->to->have->been->calledWith('b');
         };
 
         $expected = <<<'EOD'
-Expected call on {spy}[5] with arguments like:
+Expected call on {spy}[label] with arguments like:
     "b"
 Calls:
     - "a"
 EOD;
 
         expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+    });
+
+    it('Returns a method stub from method()', function () {
+        $mock = $this->mock(['a' => function () {}]);
+
+        expect($mock)->method('a')->to->be->an->instanceof('Eloquent\Phony\Spy\SpyVerifier');
+        expect($mock->mock())->method('a')->to->be->an->instanceof('Eloquent\Phony\Spy\SpyVerifier');
+    });
+
+    it('Throws an exception from method() when the method is undefined', function () {
+        $actual = function () {
+            expect($this->mockBuilder()->named('PhonyLeoUndefinedMethodFailureSpec')->get())->method('a');
+        };
+
+        expect($actual)->to->throw(
+            'Eloquent\Phony\Mock\Exception\UndefinedMethodStubException',
+            'The requested method stub PhonyLeoUndefinedMethodFailureSpec::a() does not exist.'
+        );
     });
 });

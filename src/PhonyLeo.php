@@ -12,6 +12,7 @@
 namespace Eloquent\Phony\Leo;
 
 use Eloquent\Phony\Assertion\Exception\AssertionException;
+use Eloquent\Phony\Mock\Handle\InstanceHandle;
 use Eloquent\Phony\Mock\Mock;
 use Eloquent\Phony\Phony;
 use Eloquent\Phony\Spy\SpyVerifier;
@@ -25,21 +26,27 @@ class PhonyLeo
 {
     /**
      * Install the plugin to the supplied assertion object.
-     *
-     * @param Assertion $assertion The assertion object.
      */
     public function __invoke(Assertion $assertion)
     {
         $assertion->addMethod(
             'method',
-            function () {
+            function ($method) {
                 $actual = $this->getActual();
 
-                if (!$actual instanceof Mock) {
+                if ($actual instanceof InstanceHandle) {
+                    $handle = $actual;
+                } elseif ($actual instanceof Mock) {
+                    $handle = Phony::on($actual);
+                } else {
                     throw new InvalidArgumentException(
                         'Actual value for method() must be a mock.'
                     );
                 }
+
+                $this->setActual($handle->stub($method));
+
+                return $this;
             }
         );
 

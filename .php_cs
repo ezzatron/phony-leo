@@ -67,7 +67,7 @@ return Symfony\CS\Config\Config::create()
             'ordered_use',
 
             // specific to this project
-            'long_array_syntax',
+            'short_array_syntax',
         )
     )
     ->finder($finder);
