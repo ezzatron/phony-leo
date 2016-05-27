@@ -79,15 +79,13 @@ class PhonyPeridot
             }
 
             $typeName = strval($type);
+        } elseif ($class = $parameter->getClass()) {
+            $typeName = $class->getName();
+        } elseif ($parameter->isArray()) {
+            $typeName = 'array';
+        } elseif ($parameter->isCallable()) {
+            $typeName = 'callable';
         } else {
-            if ($class = $parameter->getClass()) {
-                $typeName = $class->getName();
-            } elseif ($parameter->isArray()) {
-                $typeName = 'array';
-            } elseif ($parameter->isCallable()) {
-                $typeName = 'callable';
-            }
-
             return null;
         }
 
