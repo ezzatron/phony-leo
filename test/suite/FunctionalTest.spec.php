@@ -76,21 +76,11 @@ EOD;
         expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
     });
 
-    it('Returns a method stub from method()', function () {
-        $mock = $this->mock(['a' => function () {}]);
+    it('Supports spies retreived from mocks', function () {
+        $handle = $this->mock(['a' => function () {}]);
+        $mock = $handle->mock();
+        $mock->a();
 
-        expect($mock)->method('a')->to->be->an->instanceof('Eloquent\Phony\Spy\SpyVerifier');
-        expect($mock->mock())->method('a')->to->be->an->instanceof('Eloquent\Phony\Spy\SpyVerifier');
-    });
-
-    it('Throws an exception from method() when the method is undefined', function () {
-        $actual = function () {
-            expect($this->mockBuilder()->named('PhonyLeoUndefinedMethodFailureSpec')->get())->method('a');
-        };
-
-        expect($actual)->to->throw(
-            'Eloquent\Phony\Mock\Exception\UndefinedMethodStubException',
-            'The requested method stub PhonyLeoUndefinedMethodFailureSpec::a() does not exist.'
-        );
+        expect($handle->a)->to->have->been->called();
     });
 });

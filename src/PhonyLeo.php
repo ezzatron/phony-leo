@@ -29,27 +29,6 @@ class PhonyLeo
      */
     public function __invoke(Assertion $assertion)
     {
-        $assertion->addMethod(
-            'method',
-            function ($method) {
-                $actual = $this->getActual();
-
-                if ($actual instanceof InstanceHandle) {
-                    $handle = $actual;
-                } elseif ($actual instanceof Mock) {
-                    $handle = Phony::on($actual);
-                } else {
-                    throw new InvalidArgumentException(
-                        'Actual value for method() must be a mock.'
-                    );
-                }
-
-                $this->setActual($handle->stub($method));
-
-                return $this;
-            }
-        );
-
         $verification = function ($method) {
             return function () use ($method) {
                 $actual = $this->getActual();
