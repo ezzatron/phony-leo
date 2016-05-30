@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of the Phony for Leo package.
+ *
+ * Copyright © 2016 Erin Millard
+ *
+ * For the full copyright and license information, please view the LICENSE file
+ * that was distributed with this source code.
+ */
+
+use Eloquent\Phony as x;
 use Eloquent\Phony\Leo\PhonyLeo;
 use Peridot\Leo\Leo;
 
@@ -9,7 +19,7 @@ describe('Functional tests', function () {
     });
 
     it('Returns a verification result on success', function () {
-        $spy = $this->spy();
+        $spy = x\spy();
         $spy();
 
         $result = expect($spy)->to->have->been->called();
@@ -18,7 +28,7 @@ describe('Functional tests', function () {
 
     it('Throws exceptions on failure', function () {
         $actual = function () {
-            expect($this->spy())->to->have->been->called();
+            expect(x\spy())->to->have->been->called();
         };
 
         expect($actual)->to->throw(
@@ -28,12 +38,12 @@ describe('Functional tests', function () {
     });
 
     it('Supports negation', function () {
-        expect($this->spy())->not->to->have->been->called();
+        expect(x\spy())->not->to->have->been->called();
     });
 
     it('Supports negation failures', function () {
         $actual = function () {
-            $spy = $this->spy();
+            $spy = x\spy();
             $spy();
 
             expect($spy)->not->to->have->been->called();
@@ -45,22 +55,14 @@ describe('Functional tests', function () {
         );
     });
 
-    it('Rejects invalid actual values', function () {
-        $actual = function () {
-            expect('a')->to->have->been->called();
-        };
-
-        expect($actual)->to->throw('InvalidArgumentException', 'Actual value for called() must be a spy.');
-    });
-
     it('Supports methods with arguments', function () {
-        $spy = $this->spy();
+        $spy = x\spy();
         $spy('a');
 
         expect($spy)->to->have->been->calledWith('a');
 
         $actual = function () {
-            $spy = $this->spy()->setLabel('label');
+            $spy = x\spy()->setLabel('label');
             $spy('a');
 
             expect($spy)->to->have->been->calledWith('b');
@@ -77,18 +79,28 @@ EOD;
     });
 
     it('Supports spies retreived from mocks', function () {
-        $handle = $this->mock(['a' => function () {}]);
+        $handle = x\mock(['a' => function () {}]);
         $mock = $handle->mock();
         $mock->a();
 
         expect($handle->a)->to->have->been->called();
+        expect($handle)->method('a')->to->have->been->called();
+        expect($mock)->method('a')->to->have->been->called();
     });
 
-    describe('Suite with typehinted arguments', function () {
-        it('Can be used to verify method calls', function (DateTime $a) {
-            $a->getTimeZone();
+    it('Rejects invalid actual values for verifications', function () {
+        $actual = function () {
+            expect('a')->to->have->been->called();
+        };
 
-            expect($a)->method('getTimeZone')->to->have->been->called();
-        });
+        expect($actual)->to->throw('InvalidArgumentException', 'Actual value for called() must be a spy.');
+    });
+
+    it('Rejects invalid actual values for method()', function () {
+        $actual = function () {
+            expect('a')->method('b');
+        };
+
+        expect($actual)->to->throw('InvalidArgumentException', 'Actual value for method() must be a mock.');
     });
 });

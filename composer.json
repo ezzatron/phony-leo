@@ -1,7 +1,7 @@
 {
     "name": "eloquent/phony-leo",
     "description": "Phony integration for Leo.",
-    "keywords": ["mock", "mocking", "stub", "stubbing", "spy", "dummy", "double", "test", "fake", "leo"],
+    "keywords": ["mock", "mocking", "stub", "stubbing", "spy", "dummy", "double", "test", "fake", "peridot", "leo"],
     "homepage": "https://github.com/eloquent/phony-leo",
     "license": "MIT",
     "authors": [
@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=5.4",
-        "eloquent/phony": "dev-master",
+        "eloquent/phony": "dev-fix-assertion-trimming",
         "peridot-php/leo": "^1"
     },
     "require-dev": {

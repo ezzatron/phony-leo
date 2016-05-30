@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "30fa3bee4bd7a01dc43331c9bcbed82f",
-    "content-hash": "98327ae73e849b3da074d0c1ce59714c",
+    "hash": "e7cfa46762e1197d57bd04b3eae72874",
+    "content-hash": "b8b15d97ec309039bdd44e2efeb30763",
     "packages": [
         {
             "name": "eloquent/phony",
-            "version": "dev-master",
+            "version": "dev-fix-assertion-trimming",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/phony.git",
-                "reference": "b0819f757916a5c069548f90ed3d1fee4321ee2a"
+                "reference": "de7d26ee9a6e263cf5d7ca41ba6db51cb6da6f32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/phony/zipball/b0819f757916a5c069548f90ed3d1fee4321ee2a",
-                "reference": "b0819f757916a5c069548f90ed3d1fee4321ee2a",
+                "url": "https://api.github.com/repos/eloquent/phony/zipball/de7d26ee9a6e263cf5d7ca41ba6db51cb6da6f32",
+                "reference": "de7d26ee9a6e263cf5d7ca41ba6db51cb6da6f32",
                 "shasum": ""
             },
             "require": {
@@ -78,7 +78,7 @@
                 "stubbing",
                 "test"
             ],
-            "time": "2016-05-26 00:35:53"
+            "time": "2016-05-30 06:10:07"
         },
         {
             "name": "peridot-php/leo",
