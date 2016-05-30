@@ -84,6 +84,11 @@ EOD;
         expect($handle->a)->to->have->been->called();
     });
 
-    describe('suite with typehinted arguments', function (DateTime $a) {
+    describe('Suite with typehinted arguments', function () {
+        it('Can be used to verify method calls', function (DateTime $a) {
+            $a->getTimeZone();
+
+            expect($a)->method('getTimeZone')->to->have->been->called();
+        });
     });
 });

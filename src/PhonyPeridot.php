@@ -38,6 +38,7 @@ class PhonyPeridot
     public function install()
     {
         $this->emitter->on('suite.define', [$this, 'onSuiteDefine']);
+        $this->emitter->on('suite.start', [$this, 'onSuiteStart']);
     }
 
     /**
@@ -45,7 +46,9 @@ class PhonyPeridot
      */
     public function uninstall()
     {
-        $this->emitter->removeListener('suite.define', [$this, 'onSuiteDefine']);
+        $this->emitter
+            ->removeListener('suite.define', [$this, 'onSuiteDefine']);
+        $this->emitter->removeListener('suite.start', [$this, 'onSuiteStart']);
     }
 
     /**
@@ -57,59 +60,115 @@ class PhonyPeridot
         $parameters = $definition->getParameters();
 
         if ($parameters) {
-            $arguments = [];
-
-            foreach ($parameters as $parameter) {
-                $arguments[] = $this->parameterArgument($parameter);
-            }
-
-            $suite->setDefinitionArguments($arguments);
+            $suite->setDefinitionArguments(
+                $this->parameterArguments($parameters)
+            );
         }
 
         $suite->getScope()->peridotAddChildScope(new PhonyScope());
     }
 
-    private function parameterArgument(ReflectionParameter $parameter)
+    /**
+     * Handle the start of a suite.
+     */
+    public function onSuiteStart(Suite $suite)
     {
-        if ($this->isScalarTypeHintSupported) {
-            $type = $parameter->getType();
+        foreach ($suite->getTests() as $test) {
+            $definition = new ReflectionFunction($test->getDefinition());
+            $parameters = $definition->getParameters();
 
-            if (!$type) {
-                return null;
+            if ($parameters) {
+                $test->setDefinitionArguments(
+                    $this->parameterArguments($parameters)
+                );
+            }
+        }
+
+        $suite->getScope()->peridotAddChildScope(new PhonyScope());
+    }
+
+    private function parameterArguments(array $parameters)
+    {
+        $arguments = [];
+
+        foreach ($parameters as $parameter) {
+            if ($this->isScalarTypeHintSupported) {
+                $type = $parameter->getType();
+
+                if (!$type) {
+                    $arguments[] = null;
+
+                    continue;
+                }
+
+                $typeName = strval($type);
+            } elseif ($class = $parameter->getClass()) {
+                $typeName = $class->getName();
+            } elseif ($parameter->isArray()) {
+                $typeName = 'array';
+            } elseif ($parameter->isCallable()) {
+                $typeName = 'callable';
+            } else {
+                $arguments[] = null;
+
+                continue;
             }
 
-            $typeName = strval($type);
-        } elseif ($class = $parameter->getClass()) {
-            $typeName = $class->getName();
-        } elseif ($parameter->isArray()) {
-            $typeName = 'array';
-        } elseif ($parameter->isCallable()) {
-            $typeName = 'callable';
-        } else {
-            return null;
+            switch (strtolower($typeName)) {
+                case 'bool':
+                    $argument = false;
+
+                    break;
+
+                case 'int':
+                    $argument = 0;
+
+                    break;
+
+                case 'float':
+                    $argument = .0;
+
+                    break;
+
+                case 'string':
+                    $argument = '';
+
+                    break;
+
+                case 'array':
+                    $argument = [];
+
+                    break;
+
+                case 'stdclass':
+                    $argument = (object) [];
+
+                    break;
+
+                case 'callable':
+                    $argument = Phony::stub();
+
+                    break;
+
+                case 'closure':
+                    $argument = function () {};
+
+                    break;
+
+                case 'generator':
+                    $fn = function () { return; yield; };
+                    $argument = $fn();
+
+                    break;
+
+                default:
+                    $argument = Phony::mock($typeName)->mock();
+            }
+
+            $arguments[] = $argument;
         }
 
-        switch (strtolower($typeName)) {
-            case 'bool': return false;
-            case 'int': return 0;
-            case 'float': return .0;
-            case 'string': return '';
-            case 'array': return array();
-            case 'stdclass': return (object) array();
-
-            case 'callable':
-                return Phony::stub();
-
-            case 'closure':
-                return function () {};
-
-            case 'generator':
-                $fn = function () { return; yield; };
-
-                return $fn();
-        }
-
-        return Phony::mock($typeName)->mock();
+        return $arguments;
     }
 
     private $emitter;

@@ -12,20 +12,25 @@
 namespace Eloquent\Phony\Leo;
 
 use Eloquent\Phony\Assertion\Exception\AssertionException;
-use Peridot\Leo\Matcher\AbstractMatcher;
+use Peridot\Leo\Assertion;
+use Peridot\Leo\Matcher\Match;
+use Peridot\Leo\Matcher\MatcherInterface;
 use Peridot\Leo\Matcher\Template\ArrayTemplate;
+use Peridot\Leo\Matcher\Template\TemplateInterface;
 
 /**
  * A Leo wrapper for Phony verification failures.
  */
-class PhonyFailureMatcher extends AbstractMatcher
+class PhonyFailureMatcher implements MatcherInterface
 {
     /**
      * Construct a new Phony failure matcher.
      */
     public function __construct(AssertionException $failure)
     {
-        parent::__construct($failure->getMessage());
+        $message = $failure->getMessage();
+        $this->template =
+            new ArrayTemplate(['default' => $message, 'negated' => $message]);
     }
 
     /**
@@ -33,20 +38,62 @@ class PhonyFailureMatcher extends AbstractMatcher
      *
      * @return false
      */
-    public function doMatch($actual)
+    public function isNegated()
     {
         return false;
     }
 
     /**
-     * Get a dummy template containing the original verification failure message.
+     * Does nothing.
+     */
+    public function invert()
+    {
+        return $this;
+    }
+
+    /**
+     * Return a dummy match.
+     */
+    public function match($actual)
+    {
+        return new Match(false, '', '', false);
+    }
+
+    /**
+     * Return a dummy template.
+     *
+     * @return ArrayTemplate The template.
+     */
+    public function getTemplate()
+    {
+        return $this->template;
+    }
+
+    /**
+     * Does nothing.
+     */
+    public function setAssertion(Assertion $assertion)
+    {
+        return $this;
+    }
+
+    /**
+     * Does nothing.
+     */
+    public function setTemplate(TemplateInterface $template)
+    {
+        return $this;
+    }
+
+    /**
+     * Return a dummy template.
      *
      * @return ArrayTemplate The template.
      */
     public function getDefaultTemplate()
     {
-        return new ArrayTemplate(
-            ['default' => $this->expected, 'negated' => $this->expected]
-        );
+        return $this->template;
     }
+
+    private $template;
 }
