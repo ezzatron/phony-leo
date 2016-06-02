@@ -11,7 +11,11 @@
 
 namespace Eloquent\Phony\Leo;
 
+use Eloquent\Phony as x;
 use Eloquent\Phony\Assertion\Exception\AssertionException;
+use Peridot\Leo\Assertion;
+use Peridot\Leo\Matcher\Match;
+use Peridot\Leo\Matcher\Template\ArrayTemplate;
 
 describe('PhonyFailureMatcher', function () {
     beforeEach(function () {
@@ -21,5 +25,33 @@ describe('PhonyFailureMatcher', function () {
 
     it('isNegated()', function () {
         expect($this->subject->isNegated())->to->be->false();
+    });
+
+    it('invert()', function () {
+        expect($this->subject->invert())->to->equal($this->subject);
+    });
+
+    it('match()', function () {
+        expect($this->subject->match('x'))->to->loosely->equal(new Match(false, '', '', false));
+    });
+
+    it('getTemplate()', function () {
+        expect($this->subject->getTemplate())->to->loosely
+            ->equal(new ArrayTemplate(['default' => 'You done goofed.', 'negated' => 'You done goofed.']));
+    });
+
+    it('setAssertion()', function () {
+        $assertion = new Assertion(x\mock('Peridot\Leo\Responder\ResponderInterface')->mock());
+
+        expect($this->subject->setAssertion($assertion))->to->equal($this->subject);
+    });
+
+    it('setTemplate()', function () {
+        expect($this->subject->setTemplate(new ArrayTemplate([])))->to->equal($this->subject);
+    });
+
+    it('getDefaultTemplate()', function () {
+        expect($this->subject->getDefaultTemplate())->to->loosely
+            ->equal(new ArrayTemplate(['default' => 'You done goofed.', 'negated' => 'You done goofed.']));
     });
 });

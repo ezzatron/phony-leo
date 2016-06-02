@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=5.4",
-        "eloquent/phony": "dev-fix-assertion-trimming",
+        "eloquent/phony": "dev-master",
         "peridot-php/leo": "^1"
     },
     "require-dev": {
