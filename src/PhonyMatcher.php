@@ -14,14 +14,14 @@ namespace Eloquent\Phony\Leo;
 use Eloquent\Phony\Assertion\Exception\AssertionException;
 use Peridot\Leo\Assertion;
 use Peridot\Leo\Matcher\Match;
-use Peridot\Leo\Matcher\MatcherInterface;
 use Peridot\Leo\Matcher\Template\ArrayTemplate;
 use Peridot\Leo\Matcher\Template\TemplateInterface;
+use Peridot\Leo\Matcher\UnchainableMatcherInterface;
 
 /**
  * A Leo wrapper for Phony verifications.
  */
-class PhonyMatcher implements MatcherInterface
+class PhonyMatcher implements UnchainableMatcherInterface
 {
     /**
      * Construct a new Phony matcher.
@@ -53,7 +53,8 @@ class PhonyMatcher implements MatcherInterface
         }
 
         try {
-            call_user_func_array([$actual, $this->name], $this->arguments);
+            $this->result =
+                call_user_func_array([$actual, $this->name], $this->arguments);
             $isMatch = true;
         } catch (AssertionException $error) {
             $isMatch = false;
@@ -85,8 +86,14 @@ class PhonyMatcher implements MatcherInterface
         return $this->template;
     }
 
+    public function getResult()
+    {
+        return $this->result;
+    }
+
     private $name;
     private $arguments;
     private $isNegated;
     private $template;
+    private $result;
 }

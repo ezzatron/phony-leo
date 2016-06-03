@@ -14,7 +14,7 @@
     "require": {
         "php": ">=5.4",
         "eloquent/phony": "dev-master",
-        "peridot-php/leo": "^1"
+        "peridot-php/leo": "dev-unchainable-matcher"
     },
     "require-dev": {
         "eloquent/asplode": "^2",
@@ -34,6 +34,10 @@
         }
     },
     "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ezzatron/leo"
+        },
         {
             "type": "vcs",
             "url": "https://github.com/ezzatron/phony-peridot"

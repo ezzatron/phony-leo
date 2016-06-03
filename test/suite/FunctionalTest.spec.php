@@ -18,6 +18,15 @@ describe('Functional tests', function () {
         Leo::assertion()->extend(new PhonyLeo());
     });
 
+    it('Returns a Phony matcher on success', function () {
+        $spy = x\spy();
+        $spy();
+        $actual = expect($spy)->to->have->been->called();
+
+        expect($actual)->to->be->an->instanceof('Eloquent\Phony\Leo\PhonyMatcher');
+        expect($actual->getResult())->to->be->an->instanceof('Eloquent\Phony\Event\EventCollection');
+    });
+
     it('Throws exceptions on failure', function () {
         $actual = function () {
             expect(x\spy())->to->have->been->called();

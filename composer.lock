@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e5d3a3ed277d6e4e38e9ec1a78de4aa3",
-    "content-hash": "3eb9eff3fac292b17d7ec93885cb477d",
+    "hash": "8cad3a788061e2adfd16406a390bd1a5",
+    "content-hash": "e3359a07606bcfc46dfe1f20e610f62a",
     "packages": [
         {
             "name": "eloquent/phony",
@@ -82,16 +82,16 @@
         },
         {
             "name": "peridot-php/leo",
-            "version": "1.5.0",
+            "version": "dev-unchainable-matcher",
             "source": {
                 "type": "git",
-                "url": "https://github.com/peridot-php/leo.git",
-                "reference": "5ff1a9481faa37a55f5c6569379858dca01312f6"
+                "url": "https://github.com/ezzatron/leo.git",
+                "reference": "a330780283df3a8cffa13e79e9f0308ef34c94f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/peridot-php/leo/zipball/5ff1a9481faa37a55f5c6569379858dca01312f6",
-                "reference": "5ff1a9481faa37a55f5c6569379858dca01312f6",
+                "url": "https://api.github.com/repos/ezzatron/leo/zipball/a330780283df3a8cffa13e79e9f0308ef34c94f9",
+                "reference": "a330780283df3a8cffa13e79e9f0308ef34c94f9",
                 "shasum": ""
             },
             "require": {
@@ -111,7 +111,6 @@
                     "src/Interfaces/_interface.bdd.php"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -129,7 +128,10 @@
                 "matcher",
                 "testing"
             ],
-            "time": "2016-03-02 04:33:43"
+            "support": {
+                "source": "https://github.com/ezzatron/leo/tree/unchainable-matcher"
+            },
+            "time": "2016-06-03 04:50:34"
         }
     ],
     "packages-dev": [
@@ -193,12 +195,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ezzatron/phony-peridot.git",
-                "reference": "2915c363282941aa6feefc262f19ecda1d673493"
+                "reference": "15a9963bea9b7ad4018e1bf330465b566dd51e8b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ezzatron/phony-peridot/zipball/2915c363282941aa6feefc262f19ecda1d673493",
-                "reference": "2915c363282941aa6feefc262f19ecda1d673493",
+                "url": "https://api.github.com/repos/ezzatron/phony-peridot/zipball/15a9963bea9b7ad4018e1bf330465b566dd51e8b",
+                "reference": "15a9963bea9b7ad4018e1bf330465b566dd51e8b",
                 "shasum": ""
             },
             "require": {
@@ -208,6 +210,7 @@
             },
             "require-dev": {
                 "eloquent/asplode": "^2",
+                "eloquent/phony-leo": "dev-master",
                 "friendsofphp/php-cs-fixer": "^1",
                 "peridot-php/leo": "^1",
                 "peridot-php/peridot-code-coverage-reporters": "^2"
@@ -253,7 +256,7 @@
                 "source": "https://github.com/ezzatron/phony-peridot/tree/master",
                 "issues": "https://github.com/ezzatron/phony-peridot/issues"
             },
-            "time": "2016-06-02 10:39:10"
+            "time": "2016-06-03 00:53:57"
         },
         {
             "name": "evenement/evenement",
@@ -1311,6 +1314,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "eloquent/phony": 20,
+        "peridot-php/leo": 20,
         "eloquent/phony-peridot": 20
     },
     "prefer-stable": false,
