@@ -16,6 +16,7 @@ use Eloquent\Phony\Assertion\Exception\AssertionException;
 use Peridot\Leo\Assertion;
 use Peridot\Leo\Matcher\Match;
 use Peridot\Leo\Matcher\Template\ArrayTemplate;
+use Peridot\Leo\Responder\ResponderInterface;
 
 describe('PhonyFailureMatcher', function () {
     beforeEach(function () {
@@ -40,8 +41,8 @@ describe('PhonyFailureMatcher', function () {
             ->equal(new ArrayTemplate(['default' => 'You done goofed.', 'negated' => 'You done goofed.']));
     });
 
-    it('setAssertion()', function () {
-        $assertion = new Assertion(x\mock('Peridot\Leo\Responder\ResponderInterface')->mock());
+    it('setAssertion()', function (ResponderInterface $responder) {
+        $assertion = new Assertion($responder);
 
         expect($this->subject->setAssertion($assertion))->to->equal($this->subject);
     });

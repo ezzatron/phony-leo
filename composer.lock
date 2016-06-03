@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "75dee6f47c706f17415be776f9bbf01e",
-    "content-hash": "98327ae73e849b3da074d0c1ce59714c",
+    "hash": "e5d3a3ed277d6e4e38e9ec1a78de4aa3",
+    "content-hash": "3eb9eff3fac292b17d7ec93885cb477d",
     "packages": [
         {
             "name": "eloquent/phony",
@@ -186,6 +186,74 @@
                 "handling"
             ],
             "time": "2016-04-19 01:21:09"
+        },
+        {
+            "name": "eloquent/phony-peridot",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ezzatron/phony-peridot.git",
+                "reference": "2915c363282941aa6feefc262f19ecda1d673493"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ezzatron/phony-peridot/zipball/2915c363282941aa6feefc262f19ecda1d673493",
+                "reference": "2915c363282941aa6feefc262f19ecda1d673493",
+                "shasum": ""
+            },
+            "require": {
+                "eloquent/phony": "dev-master",
+                "peridot-php/peridot": "^1",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "eloquent/asplode": "^2",
+                "friendsofphp/php-cs-fixer": "^1",
+                "peridot-php/leo": "^1",
+                "peridot-php/peridot-code-coverage-reporters": "^2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Eloquent\\Phony\\Peridot\\": "src"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Eloquent\\Phony\\": [
+                        "test/src"
+                    ]
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "Phony integration for Peridot.",
+            "homepage": "https://github.com/eloquent/phony-peridot",
+            "keywords": [
+                "double",
+                "dummy",
+                "fake",
+                "mock",
+                "mocking",
+                "peridot",
+                "spy",
+                "stub",
+                "stubbing",
+                "test"
+            ],
+            "support": {
+                "source": "https://github.com/ezzatron/phony-peridot/tree/master",
+                "issues": "https://github.com/ezzatron/phony-peridot/issues"
+            },
+            "time": "2016-06-02 10:39:10"
         },
         {
             "name": "evenement/evenement",
@@ -1242,7 +1310,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "eloquent/phony": 20
+        "eloquent/phony": 20,
+        "eloquent/phony-peridot": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

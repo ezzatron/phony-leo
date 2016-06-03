@@ -1,6 +1,7 @@
 <?php
 
 use Eloquent\Asplode\Asplode;
+use Eloquent\Phony\Peridot\PhonyPeridot;
 use Evenement\EventEmitterInterface;
 use Peridot\Reporter\CodeCoverageReporters;
 
@@ -9,6 +10,9 @@ require __DIR__ . '/vendor/autoload.php';
 Asplode::install();
 
 return function (EventEmitterInterface $emitter) {
+    $phony = new PhonyPeridot($emitter);
+    $phony->install();
+
     $reporter = new CodeCoverageReporters($emitter);
     $reporter->register();
 
