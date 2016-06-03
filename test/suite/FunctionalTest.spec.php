@@ -18,14 +18,6 @@ describe('Functional tests', function () {
         Leo::assertion()->extend(new PhonyLeo());
     });
 
-    it('Returns a verification result on success', function () {
-        $spy = x\spy();
-        $spy();
-
-        $result = expect($spy)->to->have->been->called();
-        expect($result)->to->be->an->instanceof('Eloquent\Phony\Event\EventCollection');
-    });
-
     it('Throws exceptions on failure', function () {
         $actual = function () {
             expect(x\spy())->to->have->been->called();

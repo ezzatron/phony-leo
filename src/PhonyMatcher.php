@@ -19,81 +19,74 @@ use Peridot\Leo\Matcher\Template\ArrayTemplate;
 use Peridot\Leo\Matcher\Template\TemplateInterface;
 
 /**
- * A Leo wrapper for Phony verification failures.
+ * A Leo wrapper for Phony verifications.
  */
-class PhonyFailureMatcher implements MatcherInterface
+class PhonyMatcher implements MatcherInterface
 {
     /**
-     * Construct a new Phony failure matcher.
+     * Construct a new Phony matcher.
      */
-    public function __construct(AssertionException $failure)
+    public function __construct($name, array $arguments)
     {
-        $message = $failure->getMessage();
-        $this->template =
-            new ArrayTemplate(['default' => $message, 'negated' => $message]);
+        $this->name = $name;
+        $this->arguments = $arguments;
+        $this->isNegated = false;
+        $this->template = new ArrayTemplate([]);
     }
 
-    /**
-     * Always returns false.
-     *
-     * @return false
-     */
     public function isNegated()
     {
-        return false;
+        return $this->isNegated;
     }
 
-    /**
-     * Does nothing.
-     */
     public function invert()
     {
+        $this->isNegated = !$this->isNegated;
+
         return $this;
     }
 
-    /**
-     * Return a dummy match.
-     */
     public function match($actual)
     {
-        return new Match(false, '', '', false);
+        if ($this->isNegated) {
+            $actual->never();
+        }
+
+        try {
+            call_user_func_array([$actual, $this->name], $this->arguments);
+            $isMatch = true;
+        } catch (AssertionException $error) {
+            $isMatch = false;
+            $message = $error->getMessage();
+            $this->template->setDefaultTemplate($message);
+            $this->template->setNegatedTemplate($message);
+        }
+
+        return new Match($isMatch, null, null, $this->isNegated);
     }
 
-    /**
-     * Return a dummy template.
-     *
-     * @return ArrayTemplate The template.
-     */
     public function getTemplate()
     {
         return $this->template;
     }
 
-    /**
-     * Does nothing.
-     */
     public function setAssertion(Assertion $assertion)
     {
         return $this;
     }
 
-    /**
-     * Does nothing.
-     */
     public function setTemplate(TemplateInterface $template)
     {
         return $this;
     }
 
-    /**
-     * Return a dummy template.
-     *
-     * @return ArrayTemplate The template.
-     */
     public function getDefaultTemplate()
     {
         return $this->template;
     }
 
+    private $name;
+    private $arguments;
+    private $isNegated;
     private $template;
 }

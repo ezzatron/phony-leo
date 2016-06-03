@@ -11,7 +11,6 @@
 
 namespace Eloquent\Phony\Leo;
 
-use Eloquent\Phony\Assertion\Exception\AssertionException;
 use Eloquent\Phony\Mock\Handle\InstanceHandle;
 use Eloquent\Phony\Mock\Mock;
 use Eloquent\Phony\Phony;
@@ -76,27 +75,7 @@ class PhonyLeo
                     );
                 }
 
-                if ($this->flag('not')) {
-                    $actual->never();
-                }
-
-                $arguments = func_get_args();
-                $error = null;
-
-                try {
-                    $result =
-                        call_user_func_array([$actual, $name], $arguments);
-                } catch (AssertionException $error) {
-                    // cleanup first
-                }
-
-                $this->clearFlags();
-
-                if ($error) {
-                    return new PhonyFailureMatcher($error);
-                }
-
-                return $result;
+                return new PhonyMatcher($name, func_get_args());
             };
         };
 
