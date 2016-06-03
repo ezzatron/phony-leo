@@ -31,7 +31,7 @@ class PhonyLeo
     {
         $assertion->addMethod(
             'method',
-            function ($method) {
+            function ($name) {
                 $actual = $this->getActual();
 
                 if ($actual instanceof InstanceHandle) {
@@ -44,19 +44,35 @@ class PhonyLeo
                     );
                 }
 
-                $this->setActual($handle->stub($method));
+                $this->setActual($handle->stub($name));
 
                 return $this;
             }
         );
 
-        $verification = function ($method) {
-            return function () use ($method) {
+        $property = function ($name) {
+            return function () use ($name) {
                 $actual = $this->getActual();
 
                 if (!$actual instanceof SpyVerifier) {
                     throw new InvalidArgumentException(
-                        sprintf('Actual value for %s() must be a spy.', $method)
+                        sprintf('Actual value for %s must be a spy.', $name)
+                    );
+                }
+
+                $actual->$name();
+
+                return $this;
+            };
+        };
+
+        $verification = function ($name) {
+            return function () use ($name) {
+                $actual = $this->getActual();
+
+                if (!$actual instanceof SpyVerifier) {
+                    throw new InvalidArgumentException(
+                        sprintf('Actual value for %s() must be a spy.', $name)
                     );
                 }
 
@@ -65,18 +81,29 @@ class PhonyLeo
                 }
 
                 $arguments = func_get_args();
+                $error = null;
 
                 try {
                     $result =
-                        call_user_func_array([$actual, $method], $arguments);
-                } catch (AssertionException $e) {
-                    return new PhonyFailureMatcher($e);
+                        call_user_func_array([$actual, $name], $arguments);
+                } catch (AssertionException $error) {
+                    // cleanup first
+                }
+
+                $this->clearFlags();
+
+                if ($error) {
+                    return new PhonyFailureMatcher($error);
                 }
 
                 return $result;
             };
         };
 
+        $assertion->addProperty('never', $property('never'));
+        $assertion->addProperty('once', $property('once'));
+        $assertion->addProperty('twice', $property('twice'));
+        $assertion->addProperty('thrice', $property('thrice'));
         $assertion->addMethod('called', $verification('called'));
         $assertion->addMethod('calledWith', $verification('calledWith'));
     }

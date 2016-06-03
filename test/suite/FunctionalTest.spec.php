@@ -43,19 +43,21 @@ describe('Functional tests', function () {
 
     it('Supports negation failures', function () {
         $actual = function () {
-            $spy = x\spy();
+            $spy = x\spy()->setLabel('label');
             $spy();
 
             expect($spy)->not->to->have->been->called();
         };
 
-        expect($actual)->to->throw(
-            'Peridot\Leo\Responder\Exception\AssertionException',
-            'Expected no call. Called 1 time(s).'
-        );
+        $expected = <<<'EOD'
+Expected no call. Calls:
+    - {spy}[label]()
+EOD;
+
+        expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
     });
 
-    it('Supports methods with arguments', function () {
+    it('Supports verifications with arguments', function () {
         $spy = x\spy();
         $spy('a');
 
@@ -88,6 +90,14 @@ EOD;
         expect($mock)->method('a')->to->have->been->called();
     });
 
+    it('Rejects invalid actual values for properties', function () {
+        $actual = function () {
+            expect('a')->to->never->have->been->called();
+        };
+
+        expect($actual)->to->throw('InvalidArgumentException', 'Actual value for never must be a spy.');
+    });
+
     it('Rejects invalid actual values for verifications', function () {
         $actual = function () {
             expect('a')->to->have->been->called();
@@ -102,5 +112,25 @@ EOD;
         };
 
         expect($actual)->to->throw('InvalidArgumentException', 'Actual value for method() must be a mock.');
+    });
+
+    describe('Cardinality methods', function () {
+        it('Supports never', function () {
+            expect(x\spy())->to->never->have->been->called();
+
+            $actual = function () {
+                $spy = x\spy()->setLabel('label');
+                $spy();
+
+                expect($spy)->to->never->have->been->called();
+            };
+
+        $expected = <<<'EOD'
+Expected no call. Calls:
+    - {spy}[label]()
+EOD;
+
+            expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+        });
     });
 });
