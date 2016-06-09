@@ -116,8 +116,11 @@ EOD;
     });
 
     describe('Cardinality methods', function () {
-        it('Supports never', function () {
-            expect(x\spy())->to->never->have->been->called();
+        it('Supports never()', function () {
+            $spy = x\spy();
+
+            expect($spy)->to->never->have->been->called();
+            expect($spy)->to->never()->have->been->called();
 
             $actual = function () {
                 $spy = x\spy()->setLabel('label');
@@ -129,6 +132,164 @@ EOD;
         $expected = <<<'EOD'
 Expected no call. Calls:
     - {spy}[label]()
+EOD;
+
+            expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+        });
+
+        it('Supports once()', function () {
+            $spy = x\spy();
+            $spy();
+
+            expect($spy)->to->once->have->been->called();
+            expect($spy)->to->once()->have->been->called();
+
+            $actual = function () {
+                expect(x\spy()->setLabel('label'))->to->once()->have->been->called();
+            };
+
+            expect($actual)->to->throw(
+                'Peridot\Leo\Responder\Exception\AssertionException',
+                'Expected call, exactly 1 time. Never called.'
+            );
+        });
+
+        it('Supports twice()', function () {
+            $spy = x\spy();
+            $spy();
+            $spy();
+
+            expect($spy)->to->twice->have->been->called();
+            expect($spy)->to->twice()->have->been->called();
+
+            $actual = function () {
+                expect(x\spy()->setLabel('label'))->to->twice()->have->been->called();
+            };
+
+            expect($actual)->to->throw(
+                'Peridot\Leo\Responder\Exception\AssertionException',
+                'Expected call, exactly 2 times. Never called.'
+            );
+        });
+
+        it('Supports thrice()', function () {
+            $spy = x\spy();
+            $spy();
+            $spy();
+            $spy();
+
+            expect($spy)->to->thrice->have->been->called();
+            expect($spy)->to->thrice()->have->been->called();
+
+            $actual = function () {
+                expect(x\spy()->setLabel('label'))->to->thrice()->have->been->called();
+            };
+
+            expect($actual)->to->throw(
+                'Peridot\Leo\Responder\Exception\AssertionException',
+                'Expected call, exactly 3 times. Never called.'
+            );
+        });
+
+        it('Supports times()', function () {
+            $spy = x\spy();
+            $spy();
+            $spy();
+            $spy();
+            $spy();
+
+            expect($spy)->to->times(4)->have->been->called();
+
+            $actual = function () {
+                expect(x\spy()->setLabel('label'))->to->times(4)->have->been->called();
+            };
+
+            expect($actual)->to->throw(
+                'Peridot\Leo\Responder\Exception\AssertionException',
+                'Expected call, exactly 4 times. Never called.'
+            );
+        });
+
+        it('Supports atLeast()', function () {
+            $spy = x\spy();
+            $spy();
+
+            expect($spy)->to->atLeast(1)->have->been->called();
+
+            $actual = function () {
+                expect(x\spy()->setLabel('label'))->to->atLeast(2)->have->been->called();
+            };
+
+            expect($actual)->to->throw(
+                'Peridot\Leo\Responder\Exception\AssertionException',
+                'Expected call, 2 times. Never called.'
+            );
+        });
+
+        it('Supports atMost()', function () {
+            $spy = x\spy();
+
+            expect($spy)->to->atMost(1)->have->been->called();
+
+            $actual = function () {
+                $spy = x\spy()->setLabel('label');
+                $spy();
+                $spy();
+
+                expect($spy)->to->atMost(1)->have->been->called();
+            };
+
+        $expected = <<<'EOD'
+Expected call, up to 1 time. Calls:
+    - {spy}[label]()
+    - {spy}[label]()
+EOD;
+
+            expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+        });
+
+        it('Supports between()', function () {
+            $spy = x\spy();
+            $spy();
+
+            expect($spy)->to->between(1, 2)->have->been->called();
+
+            $actual = function () {
+                $spy = x\spy()->setLabel('label');
+                $spy();
+                $spy();
+                $spy();
+
+                expect($spy)->to->between(1, 2)->have->been->called();
+            };
+
+        $expected = <<<'EOD'
+Expected call, between 1 and 2 times. Calls:
+    - {spy}[label]()
+    - {spy}[label]()
+    - {spy}[label]()
+EOD;
+
+            expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+        });
+
+        it('Supports always()', function () {
+            $spy = x\spy();
+            $spy('a');
+
+            expect($spy)->to->always->have->been->calledWith('a');
+            expect($spy)->to->always()->have->been->calledWith('a');
+
+            $actual = function () {
+                $spy = x\spy()->setLabel('label');
+
+                expect($spy)->to->always()->have->been->calledWith('a');
+            };
+
+        $expected = <<<'EOD'
+Expected every call on {spy}[label] with arguments like:
+    "a"
+Never called.
 EOD;
 
             expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);

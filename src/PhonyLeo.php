@@ -49,8 +49,8 @@ class PhonyLeo
             }
         );
 
-        $property = function ($name) {
-            return function () use ($name) {
+        $property = function ($name) use ($assertion) {
+            $callback = function () use ($name) {
                 $actual = $this->getActual();
 
                 if (!$actual instanceof SpyVerifier) {
@@ -63,10 +63,31 @@ class PhonyLeo
 
                 return $this;
             };
+
+            $assertion->addProperty($name, $callback);
+            $assertion->addMethod($name, $callback);
         };
 
-        $verification = function ($name) {
-            return function () use ($name) {
+        $method = function ($name) use ($assertion) {
+            $callback = function () use ($name) {
+                $actual = $this->getActual();
+
+                if (!$actual instanceof SpyVerifier) {
+                    throw new InvalidArgumentException(
+                        sprintf('Actual value for %s must be a spy.', $name)
+                    );
+                }
+
+                call_user_func_array([$actual, $name], func_get_args());
+
+                return $this;
+            };
+
+            $assertion->addMethod($name, $callback);
+        };
+
+        $verification = function ($name) use ($assertion) {
+            $callback = function () use ($name) {
                 $actual = $this->getActual();
 
                 if (!$actual instanceof SpyVerifier) {
@@ -77,13 +98,20 @@ class PhonyLeo
 
                 return new PhonyMatcher($name, func_get_args());
             };
+
+            $assertion->addMethod($name, $callback);
         };
 
-        $assertion->addProperty('never', $property('never'));
-        $assertion->addProperty('once', $property('once'));
-        $assertion->addProperty('twice', $property('twice'));
-        $assertion->addProperty('thrice', $property('thrice'));
-        $assertion->addMethod('called', $verification('called'));
-        $assertion->addMethod('calledWith', $verification('calledWith'));
+        $property('never');
+        $property('once');
+        $property('twice');
+        $property('thrice');
+        $property('always');
+        $method('times');
+        $method('atLeast');
+        $method('atMost');
+        $method('between');
+        $verification('called');
+        $verification('calledWith');
     }
 }
