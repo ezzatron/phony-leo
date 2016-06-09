@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8cad3a788061e2adfd16406a390bd1a5",
-    "content-hash": "e3359a07606bcfc46dfe1f20e610f62a",
+    "hash": "e2c0ecead011834f5812ea8280bf07aa",
+    "content-hash": "13d3cdb33afa98109a44c8a4017ebfb2",
     "packages": [
         {
             "name": "eloquent/phony",
@@ -83,16 +83,16 @@
         },
         {
             "name": "peridot-php/leo",
-            "version": "dev-unchainable-matcher",
+            "version": "dev-matcher-returns",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ezzatron/leo.git",
-                "reference": "a330780283df3a8cffa13e79e9f0308ef34c94f9"
+                "reference": "fa2b8e7ebebb4404f1c41f93f9128da902f05582"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ezzatron/leo/zipball/a330780283df3a8cffa13e79e9f0308ef34c94f9",
-                "reference": "a330780283df3a8cffa13e79e9f0308ef34c94f9",
+                "url": "https://api.github.com/repos/ezzatron/leo/zipball/fa2b8e7ebebb4404f1c41f93f9128da902f05582",
+                "reference": "fa2b8e7ebebb4404f1c41f93f9128da902f05582",
                 "shasum": ""
             },
             "require": {
@@ -130,9 +130,9 @@
                 "testing"
             ],
             "support": {
-                "source": "https://github.com/ezzatron/leo/tree/unchainable-matcher"
+                "source": "https://github.com/ezzatron/leo/tree/matcher-returns"
             },
-            "time": "2016-06-03 04:50:34"
+            "time": "2016-06-09 07:18:09"
         }
     ],
     "packages-dev": [

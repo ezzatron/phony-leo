@@ -16,12 +16,12 @@ use Peridot\Leo\Assertion;
 use Peridot\Leo\Matcher\Match;
 use Peridot\Leo\Matcher\Template\ArrayTemplate;
 use Peridot\Leo\Matcher\Template\TemplateInterface;
-use Peridot\Leo\Matcher\UnchainableMatcherInterface;
+use Peridot\Leo\Matcher\MatcherInterface;
 
 /**
  * A Leo wrapper for Phony verifications.
  */
-class PhonyMatcher implements UnchainableMatcherInterface
+class PhonyMatcher implements MatcherInterface
 {
     /**
      * Construct a new Phony matcher.
@@ -52,8 +52,10 @@ class PhonyMatcher implements UnchainableMatcherInterface
             $actual->never();
         }
 
+        $result = null;
+
         try {
-            $this->result =
+            $result =
                 call_user_func_array([$actual, $this->name], $this->arguments);
             $isMatch = true;
         } catch (AssertionException $error) {
@@ -63,7 +65,7 @@ class PhonyMatcher implements UnchainableMatcherInterface
             $this->template->setNegatedTemplate($message);
         }
 
-        return new Match($isMatch, null, null, $this->isNegated);
+        return new Match($isMatch, null, null, $this->isNegated, $result);
     }
 
     public function getTemplate()
@@ -86,14 +88,8 @@ class PhonyMatcher implements UnchainableMatcherInterface
         return $this->template;
     }
 
-    public function getResult()
-    {
-        return $this->result;
-    }
-
     private $name;
     private $arguments;
     private $isNegated;
     private $template;
-    private $result;
 }

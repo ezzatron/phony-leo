@@ -23,8 +23,7 @@ describe('Functional tests', function () {
         $spy();
         $actual = expect($spy)->to->have->been->called();
 
-        expect($actual)->to->be->an->instanceof('Eloquent\Phony\Leo\PhonyMatcher');
-        expect($actual->getResult())->to->be->an->instanceof('Eloquent\Phony\Event\EventCollection');
+        expect($actual)->to->be->an->instanceof('Eloquent\Phony\Event\EventCollection');
     });
 
     it('Throws exceptions on failure', function () {
@@ -438,8 +437,8 @@ EOD;
             $spy();
 
             expect($spy)->to->have->traversed();
-            $matcher = expect($spy)->to->have->traversed;
-            expect($matcher->getResult())->to->be->an->instanceof('Eloquent\Phony\Verification\TraversableVerifier');
+            $result = expect($spy)->to->have->traversed;
+            expect($result)->to->be->an->instanceof('Eloquent\Phony\Verification\TraversableVerifier');
 
             $actual = function () {
                 expect(x\spy()->setLabel('label'))->to->have->traversed();
@@ -463,8 +462,8 @@ EOD;
             $spy();
 
             expect($spy)->to->have->generated();
-            $matcher = expect($spy)->to->have->generated;
-            expect($matcher->getResult())->to->be->an->instanceof('Eloquent\Phony\Verification\GeneratorVerifier');
+            $result = expect($spy)->to->have->generated;
+            expect($result)->to->be->an->instanceof('Eloquent\Phony\Verification\GeneratorVerifier');
 
             $actual = function () {
                 expect(x\spy()->setLabel('label'))->to->have->generated();

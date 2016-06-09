@@ -14,7 +14,7 @@
     "require": {
         "php": ">=5.4",
         "eloquent/phony": "dev-master",
-        "peridot-php/leo": "dev-unchainable-matcher"
+        "peridot-php/leo": "dev-matcher-returns"
     },
     "require-dev": {
         "eloquent/asplode": "^2",
