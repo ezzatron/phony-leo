@@ -17,6 +17,7 @@ use Eloquent\Phony\Phony;
 use Eloquent\Phony\Spy\SpyVerifier;
 use InvalidArgumentException;
 use Peridot\Leo\Assertion;
+use ReflectionClass;
 
 /**
  * A Leo plugin for Phony integration.
@@ -49,8 +50,12 @@ class PhonyLeo
             }
         );
 
-        $property = function ($name) use ($assertion) {
-            $callback = function () use ($name) {
+        $spyVerifier = new ReflectionClass('Eloquent\Phony\Spy\SpyVerifier');
+
+        $method = function ($name) use ($assertion, $spyVerifier) {
+            $method = $spyVerifier->getMethod($name);
+
+            $callback = function () use ($name, $method) {
                 $actual = $this->getActual();
 
                 if (!$actual instanceof SpyVerifier) {
@@ -59,34 +64,28 @@ class PhonyLeo
                     );
                 }
 
-                $actual->$name();
-
-                return $this;
-            };
-
-            $assertion->addProperty($name, $callback);
-            $assertion->addMethod($name, $callback);
-        };
-
-        $method = function ($name) use ($assertion) {
-            $callback = function () use ($name) {
-                $actual = $this->getActual();
-
-                if (!$actual instanceof SpyVerifier) {
-                    throw new InvalidArgumentException(
-                        sprintf('Actual value for %s must be a spy.', $name)
-                    );
-                }
-
-                call_user_func_array([$actual, $name], func_get_args());
+                $method->invokeArgs($actual, func_get_args());
 
                 return $this;
             };
 
             $assertion->addMethod($name, $callback);
+
+            if (!$method->getNumberOfRequiredParameters()) {
+                $assertion->addProperty($name, $callback);
+            }
         };
 
-        $verification = function ($name) use ($assertion) {
+        $verification = function ($name, $alias = null) use (
+            $assertion,
+            $spyVerifier
+        ) {
+            if (!$alias) {
+                $alias = $name;
+            }
+
+            $method = $spyVerifier->getMethod($name);
+
             $callback = function () use ($name) {
                 $actual = $this->getActual();
 
@@ -99,19 +98,30 @@ class PhonyLeo
                 return new PhonyMatcher($name, func_get_args());
             };
 
-            $assertion->addMethod($name, $callback);
+            $assertion->addMethod($alias, $callback);
+
+            if (!$method->getNumberOfRequiredParameters()) {
+                $assertion->addProperty($alias, $callback);
+            }
         };
 
-        $property('never');
-        $property('once');
-        $property('twice');
-        $property('thrice');
-        $property('always');
+        $method('never');
+        $method('once');
+        $method('twice');
+        $method('thrice');
         $method('times');
         $method('atLeast');
         $method('atMost');
         $method('between');
+        $method('always');
         $verification('called');
         $verification('calledWith');
+        $verification('calledOn');
+        $verification('responded');
+        $verification('completed');
+        $verification('returned');
+        $verification('threw', 'thrown');
+        $verification('generated');
+        $verification('traversed');
     }
 }

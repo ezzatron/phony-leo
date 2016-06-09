@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/phony.git",
-                "reference": "6918eedbdb56f0baf5b322ed2465e58957bf28e2"
+                "reference": "1509d823efb9d7d2df6401903c45198ffa749e3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/phony/zipball/6918eedbdb56f0baf5b322ed2465e58957bf28e2",
-                "reference": "6918eedbdb56f0baf5b322ed2465e58957bf28e2",
+                "url": "https://api.github.com/repos/eloquent/phony/zipball/1509d823efb9d7d2df6401903c45198ffa749e3a",
+                "reference": "1509d823efb9d7d2df6401903c45198ffa749e3a",
                 "shasum": ""
             },
             "require": {
@@ -28,7 +28,8 @@
                 "athletic/athletic": "^0.1",
                 "counterpart/counterpart": "^1",
                 "danielstjules/pho": "^1",
-                "fabpot/php-cs-fixer": "^1",
+                "ext-pdo": "*",
+                "friendsofphp/php-cs-fixer": "^1",
                 "hamcrest/hamcrest-php": "^2",
                 "icecave/isolator": "^3",
                 "icecave/semver": "^3",
@@ -78,7 +79,7 @@
                 "stubbing",
                 "test"
             ],
-            "time": "2016-06-02 09:56:41"
+            "time": "2016-06-09 05:49:03"
         },
         {
             "name": "peridot-php/leo",
@@ -306,16 +307,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v1.11.3",
+            "version": "v1.11.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/PHP-CS-Fixer.git",
-                "reference": "b0a383d856d884d6b16e15892f507ecf89f8dbd2"
+                "reference": "eeb280e909834603ffe03524dbe0066e77c83084"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/b0a383d856d884d6b16e15892f507ecf89f8dbd2",
-                "reference": "b0a383d856d884d6b16e15892f507ecf89f8dbd2",
+                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/eeb280e909834603ffe03524dbe0066e77c83084",
+                "reference": "eeb280e909834603ffe03524dbe0066e77c83084",
                 "shasum": ""
             },
             "require": {
@@ -356,7 +357,7 @@
                 }
             ],
             "description": "A tool to automatically fix PHP code style",
-            "time": "2016-05-26 23:49:24"
+            "time": "2016-06-07 07:51:27"
         },
         {
             "name": "icecave/isolator",
