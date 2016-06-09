@@ -498,7 +498,7 @@ EOD;
             )->to->be->inOrder;
 
             $actual = function () {
-                $spy = x\spy();
+                $spy = x\spy()->setLabel('label');
                 $spy('a');
                 $spy('b');
 
@@ -510,11 +510,11 @@ EOD;
 
             $expected = <<<'EOD'
 Expected events in order:
-    - called {spy}[44]("b")
-    - called {spy}[44]("a")
+    - called {spy}[label]("b")
+    - called {spy}[label]("a")
 Order:
-    - called {spy}[44]("a")
-    - called {spy}[44]("b")
+    - called {spy}[label]("a")
+    - called {spy}[label]("b")
 EOD;
 
             expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
