@@ -114,6 +114,14 @@ EOD;
         expect($actual)->to->throw('InvalidArgumentException', 'Actual value for method() must be a mock.');
     });
 
+    it('Does not support negation for order verifications', function () {
+        $actual = function () {
+            expect('a')->to->not->be->inOrder();
+        };
+
+        expect($actual)->to->throw('RuntimeException', 'Order verifications do not support negation.');
+    });
+
     describe('Cardinality', function () {
         it('Supports never()', function () {
             $spy = x\spy();
@@ -450,29 +458,106 @@ EOD;
             );
         });
 
-        if (!class_exists('Generator')) {
-            return;
-        }
+        if (class_exists('Generator')) {
+            it('Supports generated()', function () {
+                $spy = x\spy(function () {
+                    return;
+                    yield;
+                });
+                $spy();
 
-        it('Supports generated()', function () {
-            $spy = x\spy(function () {
-                return;
-                yield;
+                expect($spy)->to->have->generated();
+                $result = expect($spy)->to->have->generated;
+                expect($result)->to->be->an->instanceof('Eloquent\Phony\Verification\GeneratorVerifier');
+
+                $actual = function () {
+                    expect(x\spy()->setLabel('label'))->to->have->generated();
+                };
+
+                expect($actual)->to->throw(
+                    'Peridot\Leo\Responder\Exception\AssertionException',
+                    'Expected call on {spy}[label] to generate. Never called.'
+                );
             });
-            $spy();
+        }
+    });
 
-            expect($spy)->to->have->generated();
-            $result = expect($spy)->to->have->generated;
-            expect($result)->to->be->an->instanceof('Eloquent\Phony\Verification\GeneratorVerifier');
+    describe('Order verifications', function () {
+        it('Supports inOrder()', function () {
+            $spy = x\spy();
+            $spy('a');
+            $spy('b');
+
+            expect(
+                expect($spy)->to->have->been->calledWith('a'),
+                expect($spy)->to->have->been->calledWith('b')
+            )->to->be->inOrder();
+            expect(
+                expect($spy)->to->have->been->calledWith('a'),
+                expect($spy)->to->have->been->calledWith('b')
+            )->to->be->inOrder;
 
             $actual = function () {
-                expect(x\spy()->setLabel('label'))->to->have->generated();
+                $spy = x\spy();
+                $spy('a');
+                $spy('b');
+
+                expect(
+                    expect($spy)->to->have->been->calledWith('b'),
+                    expect($spy)->to->have->been->calledWith('a')
+                )->to->be->inOrder();
             };
 
-            expect($actual)->to->throw(
-                'Peridot\Leo\Responder\Exception\AssertionException',
-                'Expected call on {spy}[label] to generate. Never called.'
-            );
+            $expected = <<<'EOD'
+Expected events in order:
+    - called {spy}[44]("b")
+    - called {spy}[44]("a")
+Order:
+    - called {spy}[44]("a")
+    - called {spy}[44]("b")
+EOD;
+
+            expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+        });
+
+        it('Supports inAnyOrder()', function () {
+            $spy = x\spy();
+            $spy('b');
+            $spy('a');
+
+            expect(
+                expect($spy)->to->have->been->calledWith('a'),
+                expect($spy)->to->have->been->calledWith('b')
+            )->to->be->inAnyOrder();
+            expect(
+                expect($spy)->to->have->been->calledWith('a'),
+                expect($spy)->to->have->been->calledWith('b')
+            )->to->be->inAnyOrder;
+        });
+
+        it('Supports nested order verification', function () {
+            $spy = x\spy();
+            $spy('a');
+            $spy('b');
+            $spy('c');
+            $spy('d');
+
+            $bc = expect(
+                expect($spy)->to->have->been->calledWith('b'),
+                expect($spy)->to->have->been->calledWith('c')
+            )->to->be->inOrder();
+
+            $abc = expect(
+                $bc,
+                expect($spy)->to->have->been->calledWith('a')
+            )->to->be->inAnyOrder();
+
+            $bcd = expect(
+                expect($spy)->to->have->been->calledWith('d'),
+                $bc
+            )->to->be->inAnyOrder();
+
+            expect($abc, $bcd)->to->be->inOrder();
         });
     });
 });

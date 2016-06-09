@@ -105,6 +105,24 @@ class PhonyLeo
             }
         };
 
+        $orderVerification = function ($name, $alias = null) use ($assertion) {
+            if (!$alias) {
+                $alias = $name;
+            }
+
+            $verifier = sprintf('Eloquent\Phony\%sSequence', $name);
+
+            $callback = function () use ($verifier) {
+                return new PhonyOrderMatcher(
+                    $verifier,
+                    $this->getExtendedActual()
+                );
+            };
+
+            $assertion->addMethod($alias, $callback);
+            $assertion->addProperty($alias, $callback);
+        };
+
         $method('never');
         $method('once');
         $method('twice');
@@ -123,5 +141,7 @@ class PhonyLeo
         $verification('threw', 'thrown');
         $verification('generated');
         $verification('traversed');
+        $orderVerification('inOrder');
+        $orderVerification('anyOrder', 'inAnyOrder');
     }
 }

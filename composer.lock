@@ -87,12 +87,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ezzatron/leo.git",
-                "reference": "fa2b8e7ebebb4404f1c41f93f9128da902f05582"
+                "reference": "ec516c72d5945e74935f7aafa9edc40d0c7bd1ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ezzatron/leo/zipball/fa2b8e7ebebb4404f1c41f93f9128da902f05582",
-                "reference": "fa2b8e7ebebb4404f1c41f93f9128da902f05582",
+                "url": "https://api.github.com/repos/ezzatron/leo/zipball/ec516c72d5945e74935f7aafa9edc40d0c7bd1ec",
+                "reference": "ec516c72d5945e74935f7aafa9edc40d0c7bd1ec",
                 "shasum": ""
             },
             "require": {
@@ -132,7 +132,7 @@
             "support": {
                 "source": "https://github.com/ezzatron/leo/tree/matcher-returns"
             },
-            "time": "2016-06-09 07:18:09"
+            "time": "2016-06-09 08:07:18"
         }
     ],
     "packages-dev": [

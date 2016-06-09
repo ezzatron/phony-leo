@@ -17,19 +17,20 @@ use Peridot\Leo\Matcher\Match;
 use Peridot\Leo\Matcher\MatcherInterface;
 use Peridot\Leo\Matcher\Template\ArrayTemplate;
 use Peridot\Leo\Matcher\Template\TemplateInterface;
+use RuntimeException;
 
 /**
- * A Leo wrapper for Phony verifications.
+ * A Leo wrapper for Phony order verifications.
  */
-class PhonyMatcher implements MatcherInterface
+class PhonyOrderMatcher implements MatcherInterface
 {
     /**
      * Construct a new Phony matcher.
      */
-    public function __construct($name, array $arguments)
+    public function __construct($verifier, array $results)
     {
-        $this->name = $name;
-        $this->arguments = $arguments;
+        $this->verifier = $verifier;
+        $this->results = $results;
         $this->isNegated = false;
         $this->template = new ArrayTemplate([]);
     }
@@ -49,14 +50,15 @@ class PhonyMatcher implements MatcherInterface
     public function match($actual)
     {
         if ($this->isNegated) {
-            $actual->never();
+            throw new RuntimeException(
+                'Order verifications do not support negation.'
+            );
         }
 
         $result = null;
 
         try {
-            $result =
-                call_user_func_array([$actual, $this->name], $this->arguments);
+            $result = call_user_func($this->verifier, $this->results);
             $isMatch = true;
         } catch (AssertionException $error) {
             $isMatch = false;
@@ -88,8 +90,8 @@ class PhonyMatcher implements MatcherInterface
         return $this->template;
     }
 
-    private $name;
-    private $arguments;
+    private $verifier;
+    private $results;
     private $isNegated;
     private $template;
 }
