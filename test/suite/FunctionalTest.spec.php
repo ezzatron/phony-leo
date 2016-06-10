@@ -563,7 +563,7 @@ EOD;
             describe('Generator verification', function () {
                 beforeEach(function () {
                     $this->spy =
-                        x\spy(eval("return function () { try { yield 'a'; } catch (Exception \$e) {} };"));
+                        x\spy(eval("return function () { try { yield 'a'; yield 'b'; } catch (Exception \$e) {} };"));
                     iterator_to_array(call_user_func($this->spy));
                 });
 
@@ -683,33 +683,35 @@ EOD;
                     expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
                 });
 
-                it('Supports receivedException()', function () {
-                    $generator = call_user_func($this->spy);
+                if (method_exists('Generator', 'throw')) {
+                    it('Supports receivedException()', function () {
+                        $generator = call_user_func($this->spy);
 
-                    foreach ($generator as $value) {
-                        $generator->throw(new RuntimeException('You done goofed.'));
-                    }
+                        foreach ($generator as $value) {
+                            $generator->throw(new RuntimeException('You done goofed.'));
+                        }
 
-                    expect($this->spy)->to->have->generated->and->receivedException('RuntimeException');
-                    expect($this->spy)->to->have->generated->and->receivedException();
-                    expect($this->spy)->to->have->generated->and->receivedException;
+                        expect($this->spy)->to->have->generated->and->receivedException('RuntimeException');
+                        expect($this->spy)->to->have->generated->and->receivedException();
+                        expect($this->spy)->to->have->generated->and->receivedException;
 
-                    $actual = function () {
-                        $spy = x\spy(eval('return function () { yield; };'));
-                        $spy->setLabel('label');
-                        $spy();
+                        $actual = function () {
+                            $spy = x\spy(eval('return function () { yield; };'));
+                            $spy->setLabel('label');
+                            $spy();
 
-                        expect($spy)->to->have->generated->and->receivedException();
-                    };
+                            expect($spy)->to->have->generated->and->receivedException();
+                        };
 
-                    $expected = <<<'EOD'
+                        $expected = <<<'EOD'
 Expected generator returned by {closure}[label] to receive exception. Responded:
     - generated:
         - did not finish iterating
 EOD;
 
-                    expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
-                });
+                        expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+                    });
+                }
 
                 it('Supports returned()', function () {
                     $this->spy = x\spy(eval("return function () { yield 'a'; };"));
