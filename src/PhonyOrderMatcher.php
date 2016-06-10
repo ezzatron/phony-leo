@@ -24,9 +24,6 @@ use RuntimeException;
  */
 class PhonyOrderMatcher implements MatcherInterface
 {
-    /**
-     * Construct a new Phony matcher.
-     */
     public function __construct($verifier, array $results)
     {
         $this->verifier = $verifier;
@@ -55,16 +52,30 @@ class PhonyOrderMatcher implements MatcherInterface
             );
         }
 
+        $results = [];
+
+        foreach ($this->results as $result) {
+            if ($result instanceof PhonyResult) {
+                $result = $result->getResult();
+            }
+
+            $results[] = $result;
+        }
+
         $result = null;
 
         try {
-            $result = call_user_func($this->verifier, $this->results);
+            $result = call_user_func($this->verifier, $results);
             $isMatch = true;
         } catch (AssertionException $error) {
             $isMatch = false;
             $message = $error->getMessage();
             $this->template->setDefaultTemplate($message);
             $this->template->setNegatedTemplate($message);
+        }
+
+        if ($result) {
+            $result = new PhonyResult($this->assertion, $result);
         }
 
         return new Match($isMatch, null, null, $this->isNegated, $result);
@@ -77,6 +88,8 @@ class PhonyOrderMatcher implements MatcherInterface
 
     public function setAssertion(Assertion $assertion)
     {
+        $this->assertion = $assertion;
+
         return $this;
     }
 
@@ -94,4 +107,5 @@ class PhonyOrderMatcher implements MatcherInterface
     private $results;
     private $isNegated;
     private $template;
+    private $assertion;
 }

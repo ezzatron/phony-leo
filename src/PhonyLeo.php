@@ -14,10 +14,8 @@ namespace Eloquent\Phony\Leo;
 use Eloquent\Phony\Mock\Handle\InstanceHandle;
 use Eloquent\Phony\Mock\Mock;
 use Eloquent\Phony\Phony;
-use Eloquent\Phony\Spy\SpyVerifier;
 use InvalidArgumentException;
 use Peridot\Leo\Assertion;
-use ReflectionClass;
 
 /**
  * A Leo plugin for Phony integration.
@@ -40,7 +38,7 @@ class PhonyLeo
                     $handle = Phony::on($actual);
                 } else {
                     throw new InvalidArgumentException(
-                        'Actual value for method() must be a mock.'
+                        'Unsupported actual value for method().'
                     );
                 }
 
@@ -50,57 +48,77 @@ class PhonyLeo
             }
         );
 
-        $spyVerifier = new ReflectionClass('Eloquent\Phony\Spy\SpyVerifier');
-
-        $method = function ($name) use ($assertion, $spyVerifier) {
-            $method = $spyVerifier->getMethod($name);
-
-            $callback = function () use ($name, $method) {
+        $method = function ($name, $types, $addProperty) use ($assertion) {
+            $callback = function () use ($name, $types) {
                 $actual = $this->getActual();
+                $isValidType = false;
 
-                if (!$actual instanceof SpyVerifier) {
+                foreach ($types as $type) {
+                    if ($actual instanceof $type) {
+                        $isValidType = true;
+
+                        break;
+                    }
+                }
+
+                if (!$isValidType) {
                     throw new InvalidArgumentException(
-                        sprintf('Actual value for %s must be a spy.', $name)
+                        sprintf('Unsupported actual value for %s().', $name)
                     );
                 }
 
-                $method->invokeArgs($actual, func_get_args());
+                call_user_func_array([$actual, $name], func_get_args());
 
                 return $this;
             };
 
             $assertion->addMethod($name, $callback);
 
-            if (!$method->getNumberOfRequiredParameters()) {
+            if ($addProperty) {
                 $assertion->addProperty($name, $callback);
             }
         };
 
-        $verification = function ($name, $alias = null) use (
-            $assertion,
-            $spyVerifier
+        $verification = function (
+            $name,
+            $alias,
+            $types,
+            $addProperty,
+            $isChained
+        ) use (
+            $assertion
         ) {
             if (!$alias) {
                 $alias = $name;
             }
 
-            $method = $spyVerifier->getMethod($name);
-
-            $callback = function () use ($name) {
+            $callback = function () use ($name, $types, $isChained) {
                 $actual = $this->getActual();
+                $isValidType = false;
 
-                if (!$actual instanceof SpyVerifier) {
+                foreach ($types as $type) {
+                    if ($actual instanceof $type) {
+                        $isValidType = true;
+
+                        break;
+                    }
+                }
+
+                if (!$isValidType) {
                     throw new InvalidArgumentException(
-                        sprintf('Actual value for %s() must be a spy.', $name)
+                        sprintf('Unsupported actual value for %s().', $name)
                     );
                 }
 
-                return new PhonyMatcher($name, func_get_args());
+                $matcher = new PhonyMatcher($name, func_get_args(), $isChained);
+                $matcher->setAssertion($this);
+
+                return $matcher;
             };
 
             $assertion->addMethod($alias, $callback);
 
-            if (!$method->getNumberOfRequiredParameters()) {
+            if ($addProperty) {
                 $assertion->addProperty($alias, $callback);
             }
         };
@@ -113,34 +131,52 @@ class PhonyLeo
             $verifier = sprintf('Eloquent\Phony\%sSequence', $name);
 
             $callback = function () use ($verifier) {
-                return new PhonyOrderMatcher(
+                $matcher = new PhonyOrderMatcher(
                     $verifier,
                     $this->getExtendedActual()
                 );
+                $matcher->setAssertion($this);
+
+                return $matcher;
             };
 
             $assertion->addMethod($alias, $callback);
             $assertion->addProperty($alias, $callback);
         };
 
-        $method('never');
-        $method('once');
-        $method('twice');
-        $method('thrice');
-        $method('times');
-        $method('atLeast');
-        $method('atMost');
-        $method('between');
-        $method('always');
-        $verification('called');
-        $verification('calledWith');
-        $verification('calledOn');
-        $verification('responded');
-        $verification('completed');
-        $verification('returned');
-        $verification('threw', 'thrown');
-        $verification('generated');
-        $verification('traversed');
+        $spyOnly = ['Eloquent\Phony\Spy\SpyVerifier'];
+        $traversableOnly = ['Eloquent\Phony\Verification\TraversableVerifier'];
+        $generatorOnly = ['Eloquent\Phony\Verification\GeneratorVerifier'];
+        $spyOrTraversable = array_merge($spyOnly, $traversableOnly);
+        $spyOrGenerator = array_merge($spyOnly, $generatorOnly);
+
+        // name, types, addProperty
+        $method('never', $spyOrTraversable, true);
+        $method('once', $spyOrTraversable, true);
+        $method('twice', $spyOrTraversable, true);
+        $method('thrice', $spyOrTraversable, true);
+        $method('times', $spyOrTraversable, false);
+        $method('atLeast', $spyOrTraversable, false);
+        $method('atMost', $spyOrTraversable, false);
+        $method('between', $spyOrTraversable, false);
+        $method('always', $spyOrTraversable, true);
+
+        // name, alias, types, addProperty, isChained
+        $verification('called', null, $spyOnly, true, false);
+        $verification('calledWith', null, $spyOnly, true, false);
+        $verification('calledOn', null, $spyOnly, false, false);
+        $verification('responded', null, $spyOnly, true, false);
+        $verification('completed', null, $spyOnly, true, false);
+        $verification('returned', null, $spyOrGenerator, true, false);
+        $verification('threw', 'thrown', $spyOrGenerator, true, false);
+        $verification('generated', null, $spyOnly, true, true);
+        $verification('traversed', null, $spyOnly, true, true);
+        $verification('used', null, $traversableOnly, true, false);
+        $verification('produced', null, $traversableOnly, true, false);
+        $verification('consumed', null, $traversableOnly, true, false);
+        $verification('received', null, $generatorOnly, true, false);
+        $verification('receivedException', null, $generatorOnly, true, false);
+
         $orderVerification('inOrder');
         $orderVerification('anyOrder', 'inAnyOrder');
     }

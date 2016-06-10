@@ -15,7 +15,7 @@ use Peridot\Leo\Matcher\Template\TemplateInterface;
 
 describe('PhonyMatcher', function () {
     beforeEach(function () {
-        $this->subject = new PhonyMatcher('name', []);
+        $this->subject = new PhonyMatcher('name', [], false);
     });
 
     it('negation', function () {

@@ -18,12 +18,12 @@ describe('Functional tests', function () {
         Leo::assertion()->extend(new PhonyLeo());
     });
 
-    it('Returns a Phony matcher on success', function () {
+    it('Returns a Phony result on success', function () {
         $spy = x\spy();
         $spy();
         $actual = expect($spy)->to->have->been->called();
 
-        expect($actual)->to->be->an->instanceof('Eloquent\Phony\Event\EventCollection');
+        expect($actual)->to->be->an->instanceof('Eloquent\Phony\Leo\PhonyResult');
     });
 
     it('Throws exceptions on failure', function () {
@@ -35,6 +35,14 @@ describe('Functional tests', function () {
             'Peridot\Leo\Responder\Exception\AssertionException',
             'Expected call. Never called.'
         );
+    });
+
+    it('Supports chained verifications', function () {
+        $spy = x\spy();
+        $spy('a');
+        $spy('b');
+
+        expect($spy)->to->have->been->calledWith('a')->and->calledWith('b');
     });
 
     it('Supports negation', function () {
@@ -95,7 +103,7 @@ EOD;
             expect('a')->to->never->have->been->called();
         };
 
-        expect($actual)->to->throw('InvalidArgumentException', 'Actual value for never must be a spy.');
+        expect($actual)->to->throw('InvalidArgumentException', 'Unsupported actual value for never().');
     });
 
     it('Rejects invalid actual values for verifications', function () {
@@ -103,7 +111,7 @@ EOD;
             expect('a')->to->have->been->called();
         };
 
-        expect($actual)->to->throw('InvalidArgumentException', 'Actual value for called() must be a spy.');
+        expect($actual)->to->throw('InvalidArgumentException', 'Unsupported actual value for called().');
     });
 
     it('Rejects invalid actual values for method()', function () {
@@ -111,7 +119,7 @@ EOD;
             expect('a')->method('b');
         };
 
-        expect($actual)->to->throw('InvalidArgumentException', 'Actual value for method() must be a mock.');
+        expect($actual)->to->throw('InvalidArgumentException', 'Unsupported actual value for method().');
     });
 
     it('Does not support negation for order verifications', function () {
@@ -438,46 +446,304 @@ EOD;
             );
         });
 
-        it('Supports traversed()', function () {
-            $spy = x\spy(function () {
-                return [];
-            });
-            $spy();
-
-            expect($spy)->to->have->traversed();
-            $result = expect($spy)->to->have->traversed;
-            expect($result)->to->be->an->instanceof('Eloquent\Phony\Verification\TraversableVerifier');
-
-            $actual = function () {
-                expect(x\spy()->setLabel('label'))->to->have->traversed();
-            };
-
-            expect($actual)->to->throw(
-                'Peridot\Leo\Responder\Exception\AssertionException',
-                'Expected call on {spy}[label] to be traversable. Never called.'
-            );
-        });
-
-        if (class_exists('Generator')) {
-            it('Supports generated()', function () {
-                $spy = x\spy(function () {
-                    return;
-                    yield;
+        describe('Traversable verification', function () {
+            beforeEach(function () {
+                $this->spy = x\spy(function () {
+                    return ['a'];
                 });
-                $spy();
+                $this->spy->setUseTraversableSpies(true);
+                iterator_to_array(call_user_func($this->spy));
+            });
 
-                expect($spy)->to->have->generated();
-                $result = expect($spy)->to->have->generated;
-                expect($result)->to->be->an->instanceof('Eloquent\Phony\Verification\GeneratorVerifier');
+            it('Supports traversed()', function () {
+                expect($this->spy)->to->have->traversed();
+                expect($this->spy)->to->have->traversed;
 
                 $actual = function () {
-                    expect(x\spy()->setLabel('label'))->to->have->generated();
+                    expect(x\spy()->setLabel('label'))->to->have->traversed();
                 };
 
                 expect($actual)->to->throw(
                     'Peridot\Leo\Responder\Exception\AssertionException',
-                    'Expected call on {spy}[label] to generate. Never called.'
+                    'Expected call on {spy}[label] to be traversable. Never called.'
                 );
+            });
+
+            it('Allows chained verification from traversed()', function () {
+                expect($this->spy)->to->have->traversed->and->to->have->produced('a');
+            });
+
+            it('Supports used()', function () {
+                expect($this->spy)->to->have->traversed->and->been->used();
+                expect($this->spy)->to->have->traversed->and->been->used;
+
+                $actual = function () {
+                    $spy = x\spy(function () {
+                        return [];
+                    });
+                    $spy->setLabel('label')->setUseTraversableSpies(true);
+                    $spy();
+
+                    expect($spy)->to->have->traversed->and->been->used();
+                };
+
+                $expected = <<<'EOD'
+Expected call on {closure}[label] to be used. Responded:
+    - returned #0[] producing:
+        - did not finish iterating
+EOD;
+
+                expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+            });
+
+            it('Supports produced()', function () {
+                expect($this->spy)->to->have->traversed->and->to->have->produced('a');
+                expect($this->spy)->to->have->traversed->and->produced('a');
+                expect($this->spy)->to->have->traversed->and->produced;
+                expect($this->spy)->to->have->traversed->produced('a');
+                expect($this->spy)->to->have->traversed->produced;
+
+                $actual = function () {
+                    $spy = x\spy(function () {
+                        return [];
+                    });
+                    $spy->setLabel('label')->setUseTraversableSpies(true);
+                    $spy();
+
+                    expect($spy)->to->have->traversed->and->produced();
+                };
+
+                $expected = <<<'EOD'
+Expected call on {closure}[label] to produce. Responded:
+    - returned #0[] producing:
+        - did not finish iterating
+EOD;
+
+                expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+            });
+
+            it('Supports consumed()', function () {
+                expect($this->spy)->to->have->traversed->and->been->consumed();
+                expect($this->spy)->to->have->traversed->and->been->consumed;
+
+                $actual = function () {
+                    $spy = x\spy(function () {
+                        return [];
+                    });
+                    $spy->setLabel('label')->setUseTraversableSpies(true);
+                    $spy();
+
+                    expect($spy)->to->have->traversed->and->been->consumed();
+                };
+
+                $expected = <<<'EOD'
+Expected call on {closure}[label] to be consumed. Responded:
+    - returned #0[] producing:
+        - did not finish iterating
+EOD;
+
+                expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+            });
+        });
+
+        if (class_exists('Generator')) {
+            describe('Generator verification', function () {
+                beforeEach(function () {
+                    $this->spy =
+                        x\spy(eval("return function () { try { yield 'a'; } catch (Exception \$e) {} return 'b'; };"));
+                    iterator_to_array(call_user_func($this->spy));
+                });
+
+                it('Supports generated()', function () {
+                    expect($this->spy)->to->have->generated();
+                    expect($this->spy)->to->have->generated;
+
+                    $actual = function () {
+                        expect(x\spy()->setLabel('label'))->to->have->generated();
+                    };
+
+                    expect($actual)->to->throw(
+                        'Peridot\Leo\Responder\Exception\AssertionException',
+                        'Expected call on {spy}[label] to generate. Never called.'
+                    );
+                });
+
+                it('Allows chained verification from generated()', function () {
+                    expect($this->spy)->to->have->generated->and->to->have->produced('a');
+                });
+
+                it('Supports used()', function () {
+                    expect($this->spy)->to->have->generated->and->been->used();
+                    expect($this->spy)->to->have->generated->and->been->used;
+
+                    $actual = function () {
+                        $spy = x\spy(eval('return function () { yield; };'));
+                        $spy->setLabel('label');
+                        $spy();
+
+                        expect($spy)->to->have->generated->and->been->used();
+                    };
+
+                    $expected = <<<'EOD'
+Expected call on {closure}[label] to be used. Responded:
+    - generated:
+        - did not finish iterating
+EOD;
+
+                    expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+                });
+
+                it('Supports produced()', function () {
+                    expect($this->spy)->to->have->generated->and->to->have->produced('a');
+                    expect($this->spy)->to->have->generated->and->produced('a');
+                    expect($this->spy)->to->have->generated->and->produced;
+                    expect($this->spy)->to->have->generated->produced('a');
+                    expect($this->spy)->to->have->generated->produced;
+
+                    $actual = function () {
+                        $spy = x\spy(eval('return function () { yield; };'));
+                        $spy->setLabel('label');
+                        $spy();
+
+                        expect($spy)->to->have->generated->and->produced();
+                    };
+
+                    $expected = <<<'EOD'
+Expected call on {closure}[label] to produce. Responded:
+    - generated:
+        - did not finish iterating
+EOD;
+
+                    expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+                });
+
+                it('Supports consumed()', function () {
+                    expect($this->spy)->to->have->generated->and->been->consumed();
+                    expect($this->spy)->to->have->generated->and->been->consumed;
+
+                    $actual = function () {
+                        $spy = x\spy(eval('return function () { yield; };'));
+                        $spy->setLabel('label');
+                        $spy();
+
+                        expect($spy)->to->have->generated->and->been->consumed();
+                    };
+
+                    $expected = <<<'EOD'
+Expected call on {closure}[label] to be consumed. Responded:
+    - generated:
+        - did not finish iterating
+EOD;
+
+                    expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+                });
+
+                it('Supports received()', function () {
+                    $generator = call_user_func($this->spy);
+
+                    foreach ($generator as $value) {
+                        $generator->send(strtoupper($value));
+                    }
+
+                    expect($this->spy)->to->have->generated->and->received('A');
+                    expect($this->spy)->to->have->generated->and->received();
+                    expect($this->spy)->to->have->generated->and->received;
+
+                    $actual = function () {
+                        $spy = x\spy(eval('return function () { yield; };'));
+                        $spy->setLabel('label');
+                        $spy();
+
+                        expect($spy)->to->have->generated->and->received();
+                    };
+
+                    $expected = <<<'EOD'
+Expected generator returned by {closure}[label] to receive value. Responded:
+    - generated:
+        - did not finish iterating
+EOD;
+
+                    expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+                });
+
+                it('Supports receivedException()', function () {
+                    $generator = call_user_func($this->spy);
+
+                    foreach ($generator as $value) {
+                        $generator->throw(new RuntimeException('You done goofed.'));
+                    }
+
+                    expect($this->spy)->to->have->generated->and->receivedException('RuntimeException');
+                    expect($this->spy)->to->have->generated->and->receivedException();
+                    expect($this->spy)->to->have->generated->and->receivedException;
+
+                    $actual = function () {
+                        $spy = x\spy(eval('return function () { yield; };'));
+                        $spy->setLabel('label');
+                        $spy();
+
+                        expect($spy)->to->have->generated->and->receivedException();
+                    };
+
+                    $expected = <<<'EOD'
+Expected generator returned by {closure}[label] to receive exception. Responded:
+    - generated:
+        - did not finish iterating
+EOD;
+
+                    expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+                });
+
+                it('Supports returned()', function () {
+                    expect($this->spy)->to->have->generated->and->returned('b');
+                    expect($this->spy)->to->have->generated->and->returned();
+                    expect($this->spy)->to->have->generated->and->returned;
+
+                    $actual = function () {
+                        $spy = x\spy(eval('return function () { yield; };'));
+                        $spy->setLabel('label');
+                        $spy();
+
+                        expect($spy)->to->have->generated->and->returned();
+                    };
+
+                    $expected = <<<'EOD'
+Expected call on {closure}[label] to return via generator. Responded:
+    - generated:
+        - did not finish iterating
+EOD;
+
+                    expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+                });
+
+                it('Supports thrown()', function () {
+                    $this->spy =
+                        x\spy(eval("return function () { yield; throw new RuntimeException('You done goofed.'); };"));
+                    try {
+                        iterator_to_array(call_user_func($this->spy));
+                    } catch (RuntimeException $e) {
+                    }
+
+                    expect($this->spy)->to->have->generated->and->thrown('RuntimeException');
+                    expect($this->spy)->to->have->generated->and->thrown();
+                    expect($this->spy)->to->have->generated->and->thrown;
+
+                    $actual = function () {
+                        $spy = x\spy(eval('return function () { yield; };'));
+                        $spy->setLabel('label');
+                        $spy();
+
+                        expect($spy)->to->have->generated->and->thrown();
+                    };
+
+                    $expected = <<<'EOD'
+Expected call on {closure}[label] to throw via generator. Responded:
+    - generated:
+        - did not finish iterating
+EOD;
+
+                    expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+                });
             });
         }
     });

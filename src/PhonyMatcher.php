@@ -23,13 +23,11 @@ use Peridot\Leo\Matcher\Template\TemplateInterface;
  */
 class PhonyMatcher implements MatcherInterface
 {
-    /**
-     * Construct a new Phony matcher.
-     */
-    public function __construct($name, array $arguments)
+    public function __construct($name, array $arguments, $isChained)
     {
         $this->name = $name;
         $this->arguments = $arguments;
+        $this->isChained = $isChained;
         $this->isNegated = false;
         $this->template = new ArrayTemplate([]);
     }
@@ -65,6 +63,14 @@ class PhonyMatcher implements MatcherInterface
             $this->template->setNegatedTemplate($message);
         }
 
+        if ($this->isChained) {
+            $this->assertion->setActual($result);
+        }
+
+        if ($result) {
+            $result = new PhonyResult($this->assertion, $result);
+        }
+
         return new Match($isMatch, null, null, $this->isNegated, $result);
     }
 
@@ -75,6 +81,8 @@ class PhonyMatcher implements MatcherInterface
 
     public function setAssertion(Assertion $assertion)
     {
+        $this->assertion = $assertion;
+
         return $this;
     }
 
@@ -90,6 +98,8 @@ class PhonyMatcher implements MatcherInterface
 
     private $name;
     private $arguments;
+    private $isChained;
     private $isNegated;
     private $template;
+    private $assertion;
 }
