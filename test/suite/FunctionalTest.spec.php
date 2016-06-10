@@ -563,7 +563,7 @@ EOD;
             describe('Generator verification', function () {
                 beforeEach(function () {
                     $this->spy =
-                        x\spy(eval("return function () { try { yield 'a'; } catch (Exception \$e) {} return 'b'; };"));
+                        x\spy(eval("return function () { try { yield 'a'; } catch (Exception \$e) {} };"));
                     iterator_to_array(call_user_func($this->spy));
                 });
 
@@ -712,7 +712,9 @@ EOD;
                 });
 
                 it('Supports returned()', function () {
-                    expect($this->spy)->to->have->generated->and->returned('b');
+                    $this->spy = x\spy(eval("return function () { yield 'a'; };"));
+                    iterator_to_array(call_user_func($this->spy));
+
                     expect($this->spy)->to->have->generated->and->returned();
                     expect($this->spy)->to->have->generated->and->returned;
 
@@ -732,6 +734,33 @@ EOD;
 
                     expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
                 });
+
+                if (method_exists('Generator', 'getReturn')) {
+                    it('Supports returned() with values', function () {
+                        $this->spy = x\spy(eval("return function () { yield 'a'; return 'b'; };"));
+                        iterator_to_array(call_user_func($this->spy));
+
+                        expect($this->spy)->to->have->generated->and->returned('b');
+                        expect($this->spy)->to->have->generated->and->returned();
+                        expect($this->spy)->to->have->generated->and->returned;
+
+                        $actual = function () {
+                            $spy = x\spy(eval('return function () { yield; };'));
+                            $spy->setLabel('label');
+                            $spy();
+
+                            expect($spy)->to->have->generated->and->returned();
+                        };
+
+                        $expected = <<<'EOD'
+Expected call on {closure}[label] to return via generator. Responded:
+    - generated:
+        - did not finish iterating
+EOD;
+
+                        expect($actual)->to->throw('Peridot\Leo\Responder\Exception\AssertionException', $expected);
+                    });
+                }
 
                 it('Supports thrown()', function () {
                     $this->spy =
