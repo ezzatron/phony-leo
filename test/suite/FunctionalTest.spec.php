@@ -473,6 +473,10 @@ EOD;
                 expect($this->spy)->to->have->traversed->and->to->have->produced('a');
             });
 
+            it('Supports cardinality', function () {
+                expect($this->spy)->to->have->traversed->and->to->not->have->produced('x');
+            });
+
             it('Supports used()', function () {
                 expect($this->spy)->to->have->traversed->and->been->used();
                 expect($this->spy)->to->have->traversed->and->been->used;
@@ -570,6 +574,10 @@ EOD;
 
                 it('Allows chained verification from generated()', function () {
                     expect($this->spy)->to->have->generated->and->to->have->produced('a');
+                });
+
+                it('Supports cardinality', function () {
+                    expect($this->spy)->to->have->generated->and->to->not->have->produced('x');
                 });
 
                 it('Supports used()', function () {
