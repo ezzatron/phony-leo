@@ -43,6 +43,15 @@ describe('Functional tests', function () {
         $spy('b');
 
         expect($spy)->to->have->been->calledWith('a')->and->calledWith('b');
+        expect($spy)->to->have->been->calledWith('a')->equal($spy);
+    });
+
+    it('Supports Phony result method passthrough', function () {
+        $spy = x\spy();
+        $spy('a');
+        $actual = expect($spy)->to->have->been->called()->firstCall()->argument();
+
+        expect($actual)->to->equal('a');
     });
 
     it('Supports negation', function () {

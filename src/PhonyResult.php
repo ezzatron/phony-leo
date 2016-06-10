@@ -37,7 +37,13 @@ class PhonyResult
 
     public function __call($method, array $arguments)
     {
-        return call_user_func_array([$this->assertion, $method], $arguments);
+        if (method_exists($this->result, $method)) {
+            $subject = $this->result;
+        } else {
+            $subject = $this->assertion;
+        }
+
+        return call_user_func_array([$subject, $method], $arguments);
     }
 
     private $assertion;
