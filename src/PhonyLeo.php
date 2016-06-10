@@ -110,10 +110,7 @@ class PhonyLeo
                     );
                 }
 
-                $matcher = new PhonyMatcher($name, func_get_args(), $isChained);
-                $matcher->setAssertion($this);
-
-                return $matcher;
+                return new PhonyMatcher($name, func_get_args(), $isChained);
             };
 
             $assertion->addMethod($alias, $callback);
@@ -131,13 +128,10 @@ class PhonyLeo
             $verifier = sprintf('Eloquent\Phony\%sSequence', $name);
 
             $callback = function () use ($verifier) {
-                $matcher = new PhonyOrderMatcher(
+                return new PhonyOrderMatcher(
                     $verifier,
                     $this->getExtendedActual()
                 );
-                $matcher->setAssertion($this);
-
-                return $matcher;
             };
 
             $assertion->addMethod($alias, $callback);
